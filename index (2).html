@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WorkVerify — Verify once. Trusted everywhere.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16233B; --paper:#F6F3EA; --line:#DAD3C2;
+  --verified:#1F6F4A; --seal:#A63D2C; --muted:#6B7280;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:inherit;margin:0;padding:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth;}
+body{background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif; line-height:1.55;}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --ink:#EFE9DA; --paper:#141A22; --line:#33404F; --muted:#9AA5B1; }
+}
+:root[data-theme="dark"]{ --ink:#EFE9DA; --paper:#141A22; --line:#33404F; --muted:#9AA5B1; }
+h1,h2,h3{font-family:'Source Serif 4',Georgia,serif; font-weight:500; letter-spacing:-0.01em;}
+.wrap{max-width:680px; margin:0 auto; padding:0 24px;}
+a{color:inherit;}
+
+header{position:sticky; top:env(safe-area-inset-top,0px); background:var(--paper); z-index:10; border-bottom:1px solid var(--line);}
+header .inner{display:flex; justify-content:space-between; align-items:center; padding:16px 0;}
+.mark{font-family:'Source Serif 4',serif; font-size:1.1rem; font-weight:600;}
+.mark span{color:var(--verified);}
+nav{display:flex; gap:18px;}
+nav a{font-size:0.85rem; text-decoration:none; color:var(--muted);}
+nav a:hover{color:var(--ink);}
+@media (max-width:520px){ nav{display:none;} }
+
+.hero{padding:52px 0 40px; border-bottom:1px solid var(--line);}
+.hero h1{font-size:2.5rem; line-height:1.12; max-width:11ch;}
+.hero p.sub{margin-top:16px; max-width:46ch; color:var(--muted); font-size:1.03rem;}
+.seal{width:96px; height:96px; margin:24px 0 4px;}
+.seal text{fill:var(--verified); font-family:'IBM Plex Sans',sans-serif; font-size:8.6px; letter-spacing:2.5px;}
+.seal circle{fill:none; stroke:var(--verified); stroke-width:1.1;}
+.seal .check{stroke:var(--verified); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+
+form.waitlist{margin-top:26px; display:flex; max-width:420px; border:1px solid var(--ink);}
+form.waitlist input[type=email]{flex:1; border:none; background:transparent; padding:13px 14px; font-family:inherit; font-size:0.95rem; color:var(--ink); outline:none; min-width:0;}
+form.waitlist button{border:none; border-left:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:13px 20px; font-family:inherit; font-size:0.9rem; font-weight:500; cursor:pointer;}
+form.waitlist button:hover{background:var(--verified);}
+.note{margin-top:10px; font-size:0.85rem; color:var(--muted); min-height:1.2em;}
+
+section{padding:44px 0; border-bottom:1px solid var(--line); scroll-margin-top:70px;}
+section h2{font-size:1.5rem; margin-bottom:18px;}
+section > p.lede{color:var(--muted); max-width:52ch; margin-bottom:24px; font-size:0.98rem;}
+
+.row{display:flex; gap:16px; padding:14px 0; border-top:1px solid var(--line);}
+.row:first-of-type{border-top:none;}
+.row .amt{font-family:'Source Serif 4',serif; color:var(--seal); font-size:1.05rem; white-space:nowrap;}
+.row p{color:var(--muted); font-size:0.95rem;}
+
+.step{display:flex; gap:18px; margin-bottom:22px;}
+.step .n{font-family:'Source Serif 4',serif; font-size:1.3rem; color:var(--verified); width:28px; flex-shrink:0;}
+.step h3{font-size:1.02rem; font-weight:600; margin-bottom:4px;}
+.step p{color:var(--muted); font-size:0.93rem;}
+
+.roles{display:grid; grid-template-columns:1fr; gap:0;}
+.role{padding:20px 0; border-top:1px solid var(--line);}
+.role:first-child{border-top:none; padding-top:0;}
+.role h3{font-size:1.08rem; margin-bottom:8px;}
+.role ul{list-style:none; color:var(--muted); font-size:0.93rem;}
+.role li{padding:5px 0 5px 16px; position:relative;}
+.role li::before{content:"—"; position:absolute; left:0; color:var(--line);}
+
+.signal-list{columns:2; column-gap:24px; color:var(--muted); font-size:0.93rem; list-style:none;}
+.signal-list li{padding:6px 0; break-inside:avoid;}
+@media (max-width:480px){ .signal-list{columns:1;} }
+
+.principle{padding:44px 0; border-bottom:1px solid var(--line);}
+.principle p{font-family:'Source Serif 4',serif; font-size:1.3rem; line-height:1.4; max-width:34ch;}
+.principle span{color:var(--muted); font-size:0.85rem; display:block; margin-top:14px; font-family:'IBM Plex Sans',sans-serif;}
+
+.compare p{color:var(--muted); font-size:0.95rem; max-width:56ch; margin-bottom:14px;}
+.compare p b{color:var(--ink); font-weight:600;}
+
+.plans{display:flex; gap:20px; flex-wrap:wrap;}
+.plan{flex:1; min-width:180px; border-top:1px solid var(--line); padding-top:16px;}
+.plan h3{font-size:1rem; margin-bottom:6px;}
+.plan .price{font-family:'Source Serif 4',serif; font-size:1.4rem; margin-bottom:8px;}
+.plan p{color:var(--muted); font-size:0.88rem;}
+
+.cta-final{text-align:left;}
+.cta-final h2{font-size:1.8rem; max-width:14ch;}
+
+footer{padding:32px 0 40px; display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;}
+footer .mark{font-size:0.95rem;}
+footer p{color:var(--muted); font-size:0.85rem;}
+
+@media (max-width:480px){
+  .hero h1{font-size:2.1rem;}
+  form.waitlist{flex-direction:column; max-width:100%;}
+  form.waitlist button{border-left:none; border-top:1px solid var(--ink);}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap inner">
+    <div class="mark">Work<span>Verify</span></div>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#roles">Product</a>
+      <a href="#security">Security</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="hero" style="border-bottom:1px solid var(--line);">
+  <h1>Verify once. Trusted everywhere.</h1>
+  <p class="sub">Every new job means the same background check, the same documents, the same wait. WorkVerify turns your verified employment history into something you carry with you — and share with consent, in one click.</p>
+
+  <svg class="seal" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46"/>
+    <circle cx="50" cy="50" r="38"/>
+    <path class="check" d="M35 51 L46 62 L67 39"/>
+    <text><textPath href="#circlePath" startOffset="2">·  VERIFIED EMPLOYMENT  ·  CONSENT BASED  </textPath></text>
+    <path id="circlePath" fill="none" d="M 50,50 m -42,0 a 42,42 0 1,1 84,0 a 42,42 0 1,1 -84,0"/>
+  </svg>
+
+  <form class="waitlist" id="waitlistForm">
+    <input type="email" id="emailInput" placeholder="you@company.com" required>
+    <button type="submit">Join the waitlist</button>
+  </form>
+  <div class="note" id="waitlistNote">Free for employees. No spam, one email when we launch.</div>
+</section>
+
+<section>
+  <h2>Why this exists</h2>
+  <div class="row"><div class="amt">Again</div><p>Every employer restarts your background check from zero — same offer letter, same payslips, same three-day wait.</p></div>
+  <div class="row"><div class="amt">Again</div><p>Every candidate re-uploads documents an HR team has already verified for someone else, somewhere else.</p></div>
+  <div class="row"><div class="amt">Once</div><p>WorkVerify verifies your record a single time. After that, you choose who sees it, and for how long.</p></div>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <div class="step"><div class="n">1</div><div><h3>Build your record</h3><p>Add your employment history and documents once. Your current or past employer confirms it.</p></div></div>
+  <div class="step"><div class="n">2</div><div><h3>An employer requests access</h3><p>A new employer asks to verify specific details — designation, dates, status. Nothing more.</p></div></div>
+  <div class="step"><div class="n">3</div><div><h3>You decide</h3><p>You approve or reject the request, field by field. Salary and documents stay separately controlled.</p></div></div>
+  <div class="step"><div class="n">4</div><div><h3>A verified result is issued</h3><p>The employer gets a report with a public verification ID. No BGV vendor, no repeat paperwork.</p></div></div>
+</section>
+
+<section id="roles">
+  <h2>One platform, three logins</h2>
+  <p class="lede">Employees, employers and platform admins each get a workspace built for their part of the process.</p>
+  <div class="roles">
+    <div class="role">
+      <h3>Employee — the wallet</h3>
+      <ul>
+        <li>Employment history &amp; documents</li>
+        <li>Granular consent approvals</li>
+        <li>Full access history — who saw what, when</li>
+        <li>Dispute a verification result</li>
+      </ul>
+    </div>
+    <div class="role">
+      <h3>Employer — the portal</h3>
+      <ul>
+        <li>Company &amp; HR team management</li>
+        <li>Send verification requests to candidates</li>
+        <li>Verification reports with risk signals</li>
+        <li>API access for ATS/HRMS integration</li>
+      </ul>
+    </div>
+    <div class="role">
+      <h3>Admin — the control room</h3>
+      <ul>
+        <li>Approve companies before they can request data</li>
+        <li>Review AI-flagged risk signals</li>
+        <li>Manage disputes</li>
+        <li>Full audit log of every action</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Explainable risk signals, not verdicts</h2>
+  <p class="lede">WorkVerify flags inconsistencies for a human to review. It never declares a candidate fraudulent on its own.</p>
+  <ul class="signal-list">
+    <li>Document inconsistencies</li>
+    <li>Name / designation mismatches</li>
+    <li>Joining or exit date mismatches</li>
+    <li>Overlapping employments</li>
+    <li>Duplicate documents</li>
+    <li>Low OCR confidence</li>
+    <li>Suspicious file metadata</li>
+    <li>Unusual edit patterns</li>
+  </ul>
+</section>
+
+<section id="security">
+  <h2>Consent is the architecture, not a setting</h2>
+  <div class="row"><div class="amt">01</div><p>No open database. Employers never browse employee documents — every field is requested and approved individually.</p></div>
+  <div class="row"><div class="amt">02</div><p>Documents sit in private storage behind signed, temporary URLs — never a public link.</p></div>
+  <div class="row"><div class="amt">03</div><p>Every request, approval and access is written to an audit log the employee can read too.</p></div>
+  <div class="row"><div class="amt">04</div><p>Consent expires and can be revoked. Retention and deletion are configurable, not permanent by default.</p></div>
+</section>
+
+<section class="principle">
+  <p>"We don't build an open database of documents. We build a record only you can unlock."</p>
+  <span>The core privacy principle behind WorkVerify</span>
+</section>
+
+<section class="compare">
+  <h2>Where WorkVerify fits</h2>
+  <p>Portable employment records aren't a new idea — <b>Datagate</b>, <b>EmployDB</b> and <b>OnGrid</b> work in the same space. What's different here is the combination: a consent-first wallet, an explainable risk layer, and an integration point for the ATS and HRMS platforms companies already use — rather than one more standalone BGV vendor.</p>
+  <p>The goal isn't to replace background checks entirely. It's to make the second, third and tenth check nearly instant.</p>
+</section>
+
+<section id="pricing">
+  <h2>How it's priced</h2>
+  <div class="plans">
+    <div class="plan"><h3>Employees</h3><div class="price">Free</div><p>Build and hold your wallet at no cost, always.</p></div>
+    <div class="plan"><h3>Employers</h3><div class="price">Pay per check</div><p>Or a monthly plan for teams verifying often.</p></div>
+    <div class="plan"><h3>Enterprise</h3><div class="price">API &amp; volume</div><p>Direct integration into your ATS or HRMS.</p></div>
+  </div>
+</section>
+
+<section class="cta-final" style="border-bottom:none;">
+  <h2>Be first to use it</h2>
+  <p class="lede" style="margin-bottom:16px;">We're onboarding the first employers and employees before public launch.</p>
+  <form class="waitlist" id="waitlistForm2">
+    <input type="email" id="emailInput2" placeholder="you@company.com" required>
+    <button type="submit">Join the waitlist</button>
+  </form>
+  <div class="note" id="waitlistNote2">One email when we launch. Nothing else.</div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:10px;">
+    <div class="mark">Work<span>Verify</span></div>
+    <p>Portable, consent-based employment verification.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  async function wireForm(formId, inputId, noteId){
+    const form = document.getElementById(formId);
+    const note = document.getElementById(noteId);
+    const input = document.getElementById(inputId);
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      const email = input.value.trim();
+      if(!email) return;
+      note.textContent = 'Adding you…';
+      try{
+        const db = await claude.use('db');
+        if(!db){ note.textContent = "Couldn't reach shared storage. Try again shortly."; return; }
+        const id = 'signup_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+        await db.doc('waitlist/' + id).set({ email: email, joinedAt: new Date().toISOString() });
+        form.reset();
+        note.textContent = "You're on the list — we'll email you at launch.";
+      }catch(err){
+        note.textContent = "Something went wrong. Try again in a moment.";
+      }
+    });
+  }
+  wireForm('waitlistForm','emailInput','waitlistNote');
+  wireForm('waitlistForm2','emailInput2','waitlistNote2');
+})();
+</script>
+</body>
+</html>
