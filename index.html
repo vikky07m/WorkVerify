@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WorkVerify — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16233B;--paper:#F6F3EA;--line:#DAD3C2;--verified:#1F6F4A;--seal:#A63D2C;--muted:#6B7280;--card:#FFFDF8;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+*{box-sizing:inherit;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.5;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#EFE9DA;--paper:#141A22;--line:#33404F;--muted:#9AA5B1;--card:#1C232D;}}
+:root[data-theme="dark"]{--ink:#EFE9DA;--paper:#141A22;--line:#33404F;--muted:#9AA5B1;--card:#1C232D;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+h1,h2,h3{font-family:'Source Serif 4',Georgia,serif;font-weight:500;}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px 60px;}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--paper);border-bottom:1px solid var(--line);z-index:5;}
+header .inner{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;max-width:640px;margin:0 auto;flex-wrap:wrap;gap:8px;}
+.mark{font-family:'Source Serif 4',serif;font-size:1.05rem;font-weight:600;}
+.mark span{color:var(--verified);}
+.toggle{display:flex;border:1px solid var(--ink);border-radius:3px;overflow:hidden;}
+.toggle button{border:none;background:transparent;color:var(--ink);padding:7px 11px;font-family:inherit;font-size:0.8rem;cursor:pointer;}
+.toggle button.active{background:var(--ink);color:var(--paper);}
+
+.banner{background:#F0EAD6;border-bottom:1px solid var(--line);padding:8px 20px;font-size:0.82rem;color:var(--muted);text-align:center;}
+@media (prefers-color-scheme:dark){.banner{background:#242c37;}}
+:root[data-theme="dark"] .banner{background:#242c37;}
+
+section{padding:28px 0;border-bottom:1px solid var(--line);}
+section h2{font-size:1.25rem;margin-bottom:4px;}
+section p.hint{color:var(--muted);font-size:0.9rem;margin-bottom:16px;}
+
+.idbox{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);padding:12px 14px;border-radius:4px;margin-bottom:8px;}
+.idbox .val{font-size:0.95rem;}
+.idbox button{margin-left:auto;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:6px 10px;font-size:0.78rem;border-radius:3px;cursor:pointer;font-family:inherit;}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:12px;}
+.card .top{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.card h3{font-size:1rem;}
+.card .meta{color:var(--muted);font-size:0.85rem;}
+.badge{font-size:0.72rem;padding:2px 8px;border-radius:20px;border:1px solid var(--line);white-space:nowrap;height:fit-content;}
+.badge.pending{color:var(--seal);border-color:var(--seal);}
+.badge.approved{color:var(--verified);border-color:var(--verified);}
+.badge.rejected{color:var(--muted);}
+.badge.approved-badge{color:var(--verified);border-color:var(--verified);}
+
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:5px;}
+.field input,.field select{width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:9px 10px;font-family:inherit;font-size:0.92rem;border-radius:3px;}
+.field input[type=file]{padding:7px 0;border:none;font-size:0.85rem;}
+.row2{display:flex;gap:10px;}
+.row2 .field{flex:1;}
+.check-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:0.9rem;}
+
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 16px;font-family:inherit;font-size:0.88rem;font-weight:500;border-radius:3px;cursor:pointer;}
+.btn:hover{background:var(--verified);border-color:var(--verified);}
+.btn.ghost{background:transparent;color:var(--ink);}
+.btn.small{padding:6px 12px;font-size:0.8rem;}
+.btn.reject{border-color:var(--muted);color:var(--muted);background:transparent;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.empty{color:var(--muted);font-size:0.9rem;padding:16px 0;}
+
+.result-fields{margin-top:8px;}
+.result-fields .kv{display:flex;justify-content:space-between;font-size:0.88rem;padding:5px 0;border-top:1px solid var(--line);}
+.result-fields .kv:first-child{border-top:none;}
+.doclink{font-size:0.85rem;color:var(--verified);}
+
+.signals{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.signals .stitle{font-size:0.78rem;color:var(--muted);margin-bottom:6px;text-transform:none;}
+.sig{display:inline-block;font-size:0.76rem;background:transparent;border:1px solid var(--seal);color:var(--seal);padding:2px 8px;border-radius:20px;margin:0 6px 6px 0;}
+.sig.clean{border-color:var(--verified);color:var(--verified);}
+
+.audit{font-size:0.85rem;padding:8px 0;border-top:1px solid var(--line);color:var(--muted);}
+.audit:first-child{border-top:none;}
+.audit b{color:var(--ink);font-weight:500;}
+</style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <div class="mark">Work<span>Verify</span></div>
+    <div class="toggle">
+      <button id="tabEmployeeBtn" class="active">Employee</button>
+      <button id="tabEmployerBtn">Employer</button>
+      <button id="tabAdminBtn">Admin</button>
+    </div>
+  </div>
+</header>
+<div class="banner" id="statusBanner">Loading…</div>
+
+<div class="wrap">
+
+<!-- EMPLOYEE VIEW -->
+<div id="employeeView">
+  <section>
+    <h2>Your WorkVerify ID</h2>
+    <p class="hint">Share this with an employer so they can request verification.</p>
+    <div class="idbox"><span class="val mono" id="myIdDisplay">—</span><button id="copyIdBtn">Copy</button></div>
+  </section>
+
+  <section>
+    <h2>Employment history</h2>
+    <p class="hint">Add a role once, with proof. Future employers verify it without re-asking for documents.</p>
+    <div id="employmentForm">
+      <div class="field"><label>Company</label><input id="empCompany" placeholder="e.g. Acme Technologies"></div>
+      <div class="row2">
+        <div class="field"><label>Designation</label><input id="empDesignation" placeholder="e.g. Software Engineer"></div>
+        <div class="field"><label>Status</label><select id="empStatus"><option>Current</option><option>Past</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Joining date</label><input id="empStart" type="date"></div>
+        <div class="field"><label>Exit date (if past)</label><input id="empEnd" type="date"></div>
+      </div>
+      <div class="field"><label>Proof document (offer letter, payslip — optional)</label><input id="empDoc" type="file"></div>
+      <button class="btn" id="addEmploymentBtn">Add employment</button>
+    </div>
+    <div id="employmentList" style="margin-top:16px;"></div>
+  </section>
+
+  <section style="border-bottom:none;">
+    <h2>Verification requests</h2>
+    <p class="hint">Approve or reject each request. You choose exactly what an employer sees, including whether to attach your document.</p>
+    <div id="requestsInbox"><div class="empty">No requests yet.</div></div>
+  </section>
+</div>
+
+<!-- EMPLOYER VIEW -->
+<div id="employerView" style="display:none;">
+  <section id="companyGate">
+    <h2>Your company</h2>
+    <p class="hint">Register once. An admin approves your company before requests can be sent.</p>
+    <div class="field"><label>Company name</label><input id="companyName" placeholder="e.g. Northwind Corp"></div>
+    <button class="btn" id="registerCompanyBtn">Register company</button>
+    <div id="companyStatus" style="margin-top:12px;"></div>
+  </section>
+
+  <section>
+    <h2>Request a verification</h2>
+    <p class="hint">Ask a candidate for their WorkVerify ID, then request only the fields you need.</p>
+    <div class="field"><label>Candidate's WorkVerify ID</label><input id="reqTargetId" placeholder="paste the ID they shared"></div>
+    <div style="margin:4px 0 14px;">
+      <div class="check-row"><input type="checkbox" id="fDesignation" checked><label for="fDesignation">Designation</label></div>
+      <div class="check-row"><input type="checkbox" id="fDates" checked><label for="fDates">Joining / exit dates</label></div>
+      <div class="check-row"><input type="checkbox" id="fStatus" checked><label for="fStatus">Employment status</label></div>
+    </div>
+    <button class="btn" id="sendRequestBtn" disabled>Send request</button>
+  </section>
+
+  <section style="border-bottom:none;">
+    <h2>Requests you've sent</h2>
+    <div id="sentRequests"><div class="empty">No requests sent yet.</div></div>
+  </section>
+</div>
+
+<!-- ADMIN VIEW -->
+<div id="adminView" style="display:none;">
+  <section>
+    <h2>Company approvals</h2>
+    <p class="hint">A company can't send verification requests until approved here.</p>
+    <div id="companyApprovals"><div class="empty">No companies registered yet.</div></div>
+  </section>
+  <section style="border-bottom:none;">
+    <h2>Audit log</h2>
+    <p class="hint">Every request, approval and rejection across the platform.</p>
+    <div id="auditLog"><div class="empty">No activity yet.</div></div>
+  </section>
+</div>
+
+</div>
+
+<script>
+let db, user, assets, uid = null;
+
+function setBanner(text){ document.getElementById('statusBanner').textContent = text; }
+function fmt(d){ return d ? d : '—'; }
+function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function logAudit(type, detail){
+  try{ await db.collection('audit').add({ type, uid, detail, at: new Date().toISOString() }); }catch(e){}
+}
+
+async function init(){
+  try{
+    db = await claude.use('db');
+    user = await claude.use('user');
+    assets = await claude.use('assets');
+    if(!db || !user){ setBanner("Open this in claude.ai for the full working demo — storage isn't available here."); return; }
+    uid = await user.id();
+    if(!uid){ setBanner("Sign in on claude.ai to use your WorkVerify record."); return; }
+    document.getElementById('myIdDisplay').textContent = uid;
+    setBanner(assets ? "Live prototype — documents, requests and approvals are all real and shared." : "Live prototype — document upload needs Contributor access or higher.");
+    wireEmployments();
+    wireInbox();
+    wireCompanyGate();
+    wireSentRequests();
+    wireAdmin();
+  }catch(e){ setBanner("Couldn't connect to storage. Reload to try again."); }
+}
+
+// ---- Employee: employments ----
+function employmentsCol(){ return db.doc("data/users/" + uid + "/profile").collection("employments"); }
+
+function wireEmployments(){
+  const list = document.getElementById('employmentList');
+  employmentsCol().onSnapshot(snap => {
+    if(snap.empty){ list.innerHTML = '<div class="empty">No employment added yet.</div>'; return; }
+    list.innerHTML = '';
+    snap.docs.forEach(d => {
+      const r = d.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<div class="top"><h3>${esc(r.designation)}</h3><span class="badge">${esc(r.status)}</span></div>
+        <div class="meta">${esc(r.company)} · ${fmt(r.startDate)} — ${r.status==='Current'?'present':fmt(r.endDate)}</div>
+        ${r.documentUrl ? `<div style="margin-top:6px;"><a class="doclink" href="${esc(r.documentUrl)}" target="_blank" rel="noopener">View document</a></div>` : ''}`;
+      list.appendChild(card);
+    });
+  }, () => { list.innerHTML = '<div class="empty">Could not load employment records.</div>'; });
+
+  document.getElementById('addEmploymentBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('addEmploymentBtn');
+    const company = document.getElementById('empCompany').value.trim();
+    const designation = document.getElementById('empDesignation').value.trim();
+    if(!company || !designation) return;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const rec = {
+      company, designation,
+      status: document.getElementById('empStatus').value,
+      startDate: document.getElementById('empStart').value,
+      endDate: document.getElementById('empEnd').value,
+      createdAt: new Date().toISOString()
+    };
+    try{
+      const fileInput = document.getElementById('empDoc');
+      if(fileInput.files[0] && assets){
+        const up = await assets.upload(fileInput.files[0]);
+        rec.documentUrl = up.url; rec.documentId = up.id; rec.documentName = fileInput.files[0].name;
+      }
+      await employmentsCol().add(rec);
+      await logAudit('employment_added', company + ' — ' + designation);
+      document.getElementById('empCompany').value=''; document.getElementById('empDesignation').value='';
+      document.getElementById('empStart').value=''; document.getElementById('empEnd').value=''; fileInput.value='';
+    }catch(e){ alert('Could not save. Try again.'); }
+    btn.disabled = false; btn.textContent = 'Add employment';
+  });
+
+  document.getElementById('copyIdBtn').addEventListener('click', () => {
+    navigator.clipboard?.writeText(uid).then(()=>{
+      const b=document.getElementById('copyIdBtn'); const o=b.textContent; b.textContent='Copied'; setTimeout(()=>b.textContent=o,1200);
+    });
+  });
+}
+
+// ---- risk signals (rule-based, explainable — never a verdict) ----
+function computeSignals(chosen, allEmployments){
+  const signals = [];
+  if(!chosen.startDate) signals.push('Missing joining date');
+  if(chosen.status === 'Past' && !chosen.endDate) signals.push('Marked past but no exit date given');
+  if(chosen.startDate && chosen.endDate){
+    const days = (new Date(chosen.endDate) - new Date(chosen.startDate)) / 86400000;
+    if(days >= 0 && days < 30) signals.push('Tenure under 30 days');
+    if(days < 0) signals.push('Exit date is before joining date');
+  }
+  const others = allEmployments.filter(e => e.id !== chosen.id).map(e => e.data());
+  others.forEach(o => {
+    if(o.startDate && chosen.startDate && o.status==='Current' && chosen.status==='Current' && o.company !== chosen.company){
+      signals.push('Overlaps with another "Current" role at ' + o.company);
+    }
+  });
+  return signals;
+}
+
+// ---- Employee: inbox of requests addressed to me ----
+function wireInbox(){
+  const box = document.getElementById('requestsInbox');
+  const q = db.collection('requests').where('toUid','==',uid);
+  q.onSnapshot(async snap => {
+    if(snap.empty){ box.innerHTML = '<div class="empty">No requests yet.</div>'; return; }
+    const myEmployments = await employmentsCol().get();
+    box.innerHTML = '';
+    snap.docs.sort((a,b)=> (b.data().createdAt||'').localeCompare(a.data().createdAt||'')).forEach(d => {
+      const r = d.data();
+      const card = document.createElement('div'); card.className='card';
+      const fields = (r.fields||[]).join(', ');
+      let body = `<div class="top"><h3>${esc(r.employerCompany||'Employer')}</h3><span class="badge ${r.status}">${esc(r.status)}</span></div>
+        <div class="meta">Requesting: ${esc(fields)}</div>`;
+      if(r.status === 'pending'){
+        const options = myEmployments.docs.map(ed => `<option value="${ed.id}">${esc(ed.data().company)} — ${esc(ed.data().designation)}</option>`).join('');
+        body += `<div class="field" style="margin-top:10px;"><label>Which employment record?</label>
+          <select id="pick_${d.id}">${options || '<option value="">Add an employment record first</option>'}</select></div>`;
+        body += `<div class="check-row"><input type="checkbox" id="doc_${d.id}"><label for="doc_${d.id}">Also share my proof document</label></div>`;
+        body += `<div class="actions"><button class="btn small" data-approve="${d.id}">Approve</button><button class="btn small reject" data-reject="${d.id}">Reject</button></div>`;
+      }
+      card.innerHTML = body;
+      box.appendChild(card);
+    });
+    box.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', () => approveRequest(btn.getAttribute('data-approve'), myEmployments)));
+    box.querySelectorAll('[data-reject]').forEach(btn => btn.addEventListener('click', () => rejectRequest(btn.getAttribute('data-reject'))));
+  }, () => { box.innerHTML = '<div class="empty">Could not load requests.</div>'; });
+}
+
+async function approveRequest(reqId, myEmploymentsSnap){
+  const sel = document.getElementById('pick_'+reqId);
+  const empId = sel ? sel.value : '';
+  if(!empId){ alert('Add an employment record first.'); return; }
+  const empDoc = await employmentsCol().doc(empId).get();
+  if(!empDoc.exists) return;
+  const e = empDoc.data();
+  const shareDoc = document.getElementById('doc_'+reqId)?.checked;
+  const signals = computeSignals({...e, id: empId}, myEmploymentsSnap.docs);
+  try{
+    const result = {
+      company: e.company, designation: e.designation, status: e.status,
+      startDate: e.startDate, endDate: e.endDate,
+      riskSignals: signals,
+      verifiedAt: new Date().toISOString()
+    };
+    if(shareDoc && e.documentUrl) result.documentUrl = e.documentUrl;
+    await db.doc('results/'+reqId).set(result);
+    await db.doc('requests/'+reqId).update({ status: 'approved' });
+    await logAudit('request_approved', reqId);
+  }catch(err){ alert('Could not approve. Try again.'); }
+}
+async function rejectRequest(reqId){
+  try{ await db.doc('requests/'+reqId).update({ status: 'rejected' }); await logAudit('request_rejected', reqId); }catch(err){}
+}
+
+// ---- Employer: company registration + gate ----
+function companyDoc(){ return db.doc('companies/'+uid); }
+function wireCompanyGate(){
+  companyDoc().onSnapshot(snap => {
+    const statusEl = document.getElementById('companyStatus');
+    const sendBtn = document.getElementById('sendRequestBtn');
+    if(!snap.exists){
+      statusEl.innerHTML = '';
+      sendBtn.disabled = true;
+      return;
+    }
+    const c = snap.data();
+    document.getElementById('companyName').value = c.name || '';
+    if(c.approved){
+      statusEl.innerHTML = '<span class="badge approved-badge">Approved</span> ' + esc(c.name) + ' can send requests.';
+      sendBtn.disabled = false;
+    } else {
+      statusEl.innerHTML = '<span class="badge pending">Pending</span> waiting on admin approval.';
+      sendBtn.disabled = true;
+    }
+  }, () => {});
+
+  document.getElementById('registerCompanyBtn').addEventListener('click', async () => {
+    const name = document.getElementById('companyName').value.trim();
+    if(!name) return;
+    try{
+      await companyDoc().set({ name, ownerUid: uid, approved: false, createdAt: new Date().toISOString() });
+      await logAudit('company_registered', name);
+    }catch(e){ alert('Could not register company.'); }
+  });
+}
+
+// ---- Employer: send + view sent requests ----
+function wireSentRequests(){
+  document.getElementById('sendRequestBtn').addEventListener('click', async () => {
+    const targetId = document.getElementById('reqTargetId').value.trim();
+    const cSnap = await companyDoc().get();
+    if(!cSnap.exists || !cSnap.data().approved){ alert('Your company must be approved first.'); return; }
+    const company = cSnap.data().name;
+    if(!targetId) return;
+    const fields = [];
+    if(document.getElementById('fDesignation').checked) fields.push('Designation');
+    if(document.getElementById('fDates').checked) fields.push('Joining/exit dates');
+    if(document.getElementById('fStatus').checked) fields.push('Employment status');
+    try{
+      const ref = await db.collection('requests').add({
+        fromUid: uid, toUid: targetId, employerCompany: company,
+        fields, status: 'pending', createdAt: new Date().toISOString()
+      });
+      await logAudit('request_sent', company + ' → ' + targetId.slice(0,10));
+      document.getElementById('reqTargetId').value='';
+    }catch(e){ alert('Could not send request. Check the ID and try again.'); }
+  });
+
+  const box = document.getElementById('sentRequests');
+  const q = db.collection('requests').where('fromUid','==',uid);
+  q.onSnapshot(async snap => {
+    if(snap.empty){ box.innerHTML = '<div class="empty">No requests sent yet.</div>'; return; }
+    box.innerHTML = '';
+    for(const d of snap.docs.sort((a,b)=> (b.data().createdAt||'').localeCompare(a.data().createdAt||''))){
+      const r = d.data();
+      const card = document.createElement('div'); card.className='card';
+      let body = `<div class="top"><h3>Candidate ${esc((r.toUid||'').slice(0,10))}…</h3><span class="badge ${r.status}">${esc(r.status)}</span></div>
+        <div class="meta">Requested: ${esc((r.fields||[]).join(', '))}</div>`;
+      if(r.status === 'approved'){
+        const res = await db.doc('results/'+d.id).get();
+        if(res.exists){
+          const rd = res.data();
+          body += `<div class="result-fields">
+            <div class="kv"><span>Company</span><span>${esc(rd.company)}</span></div>
+            <div class="kv"><span>Designation</span><span>${esc(rd.designation)}</span></div>
+            <div class="kv"><span>Status</span><span>${esc(rd.status)}</span></div>
+            <div class="kv"><span>Joining</span><span>${fmt(rd.startDate)}</span></div>
+            <div class="kv"><span>Exit</span><span>${rd.status==='Current'?'—':fmt(rd.endDate)}</span></div>
+          </div>`;
+          if(rd.documentUrl) body += `<div style="margin-top:8px;"><a class="doclink" href="${esc(rd.documentUrl)}" target="_blank" rel="noopener">View shared document</a></div>`;
+          const sigs = rd.riskSignals || [];
+          body += `<div class="signals"><div class="stitle">Risk signals — for review, not a verdict</div>`;
+          body += sigs.length ? sigs.map(s => `<span class="sig">${esc(s)}</span>`).join('') : `<span class="sig clean">No signals flagged</span>`;
+          body += `</div>`;
+        }
+      }
+      card.innerHTML = body;
+      box.appendChild(card);
+    }
+  }, () => { box.innerHTML = '<div class="empty">Could not load sent requests.</div>'; });
+}
+
+// ---- Admin: company approvals + audit log ----
+function wireAdmin(){
+  const approvals = document.getElementById('companyApprovals');
+  db.collection('companies').onSnapshot(snap => {
+    if(snap.empty){ approvals.innerHTML = '<div class="empty">No companies registered yet.</div>'; return; }
+    approvals.innerHTML = '';
+    snap.docs.sort((a,b)=> (b.data().createdAt||'').localeCompare(a.data().createdAt||'')).forEach(d => {
+      const c = d.data();
+      const card = document.createElement('div'); card.className='card';
+      card.innerHTML = `<div class="top"><h3>${esc(c.name)}</h3><span class="badge ${c.approved?'approved-badge':'pending'}">${c.approved?'Approved':'Pending'}</span></div>
+        <div class="meta mono">${esc(d.id.slice(0,14))}…</div>
+        ${!c.approved ? `<div class="actions"><button class="btn small" data-approve-co="${d.id}">Approve</button></div>` : ''}`;
+      approvals.appendChild(card);
+    });
+    approvals.querySelectorAll('[data-approve-co]').forEach(btn => btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-approve-co');
+      try{ await db.doc('companies/'+id).update({ approved: true }); await logAudit('company_approved', id); }catch(e){}
+    }));
+  }, () => { approvals.innerHTML = '<div class="empty">Could not load companies.</div>'; });
+
+  const log = document.getElementById('auditLog');
+  db.collection('audit').orderBy('at','desc').limit(30).onSnapshot(snap => {
+    if(snap.empty){ log.innerHTML = '<div class="empty">No activity yet.</div>'; return; }
+    log.innerHTML = snap.docs.map(d => {
+      const a = d.data();
+      return `<div class="audit"><b>${esc(a.type||'').replace(/_/g,' ')}</b> — ${esc(a.detail||'')} <span class="mono">· ${new Date(a.at).toLocaleString()}</span></div>`;
+    }).join('');
+  }, () => { log.innerHTML = '<div class="empty">Could not load audit log.</div>'; });
+}
+
+// ---- View toggle ----
+const views = { employee: 'employeeView', employer: 'employerView', admin: 'adminView' };
+const btns = { employee: 'tabEmployeeBtn', employer: 'tabEmployerBtn', admin: 'tabAdminBtn' };
+function showView(name){
+  Object.keys(views).forEach(k => {
+    document.getElementById(views[k]).style.display = (k===name) ? '' : 'none';
+    document.getElementById(btns[k]).classList.toggle('active', k===name);
+  });
+}
+document.getElementById('tabEmployeeBtn').addEventListener('click', () => showView('employee'));
+document.getElementById('tabEmployerBtn').addEventListener('click', () => showView('employer'));
+document.getElementById('tabAdminBtn').addEventListener('click', () => showView('admin'));
+
+init();
+</script>
+</body>
+</html>
